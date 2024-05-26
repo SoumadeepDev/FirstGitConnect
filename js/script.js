@@ -62,7 +62,7 @@ async function displayPopularMovies() {
 //display popular Tv Shows
 async function displayPopularShows() {
   const { results } = await fetchAPIData("tv/popular");
-  //   console.log(results);
+  console.log(results);
   results.forEach((show) => {
     const div = document.createElement("div");
     div.classList.add("card");
@@ -187,87 +187,125 @@ function displayBackgroundImage(type, backgroundPath) {
 }
 //display Show-details page
 async function displayShowDetails() {
-  const showId = window.location.search.split("=")[1];
-  const show = await fetchAPIData(`tv/${showId}`);
-  console.log(show);
-  const div = document.createElement("div");
+  try {
+    const showId = window.location.search.split("=")[1];
+    const show = await fetchAPIData(`tv/${showId}`);
+    console.log(show); // Log the show object to inspect the API response
 
-  div.innerHTML = ` <div class="details-top">
-          <div>
-            ${
-              show.poster_path
-                ? `<img
-              src="https://image.tmdb.org/t/p/w500${show.poster_path}"
-              class="card-img-top"
-              alt="${show.name}"
-            />`
-                : `<img
-                  src="./images/no-image.jpg"
-                  alt="${show.name}"
-                  class="card-img-top"
-                />`
-            }
-          </div>
-          <div>
-            <h2>${show.name}</h2>
-            <p>
-              <i class="fas fa-star text-primary"></i>
-              ${show.vote_average.toFixed(1)}/10
-            </p>
-            <p class="text-muted">Last Air Date: ${show.last_air_date}</p>
-            <p class="text">
-            ${show.overview}
-            </p>
-            <h5>Genres</h5>
-            <ul class="list-group">
-              ${show.genres.map((genre) => `<li>${genre.name}</li>`).join("")}
-            </ul>
-            <a href="${show.homepage}" target="_blank" class="btn">Visit 
-            ${show.name} Official Homepage</a>
-          </div>
+    const div = document.createElement("div");
+
+    div.innerHTML = `
+      <div class="details-top">
+        <div>
+          ${
+            show.poster_path
+              ? `<img src="https://image.tmdb.org/t/p/w500${
+                  show.poster_path
+                }" class="card-img-top" alt="${show.name || "No Name"}" />`
+              : `<img src="./images/no-image.jpg" alt="No Image" class="card-img-top" />`
+          }
         </div>
-        <div class="details-bottom">
-          <h2>Show Info</h2>
-          <ul>
-            <li><span class="text-secondary">Total Episodes :</span>
-             ${show.number_of_episodes}
-              </li>
-            <li><span class="text-secondary">Total Seasons :</span>
-            ${show.seasons.length} 
-            </li>
-            <li><span class="text-secondary">Current Season Number :</span> ${
-              show.last_episode_to_air.season_number
-            }</li>
-            <li><span class="text-secondary">Current Episode Number :</span> ${
-              show.last_episode_to_air.episode_number
-            }</li>
-            <li><span class="text-secondary">Episode Type :</span> ${
-              show.last_episode_to_air.episode_type
-            } <li><span class="text-secondary">Episode RunTime :</span>  ${
-    show.episode_run_time
-  }mins</li>
-            <li><span class="text-secondary">Status :</span> ${show.status}</li>
-            <li><span class="text-secondary">Populaity :</span> 
-            ${addCommasToNumber(show.popularity).split(".")[0]}</li>
-            <li><span class="text-secondary">Language :</span> ${
-              show.origin_country
-            }-${show.spoken_languages[0].name}</li>
-            <li><span class="text-secondary">Written By :</span> ${
-              show.created_by[0].name
-            }</li>
+        <div>
+          <h2>${show.name || "No Name"}</h2>
+          <p>
+            <i class="fas fa-star text-primary"></i>
+            ${show.vote_average ? show.vote_average.toFixed(1) : "N/A"}/10
+          </p>
+          <p class="text-muted">Last Air Date: ${
+            show.last_air_date || "N/A"
+          }</p>
+          <p class="text">
+            ${show.overview || "No overview available."}
+          </p>
+          <h5>Genres</h5>
+          <ul class="list-group">
+            ${
+              show.genres
+                ? show.genres.map((genre) => `<li>${genre.name}</li>`).join("")
+                : "<li>No genres available</li>"
+            }
           </ul>
-          <h4>Publishing Networks: </h4>
-          <div class="list-group">
-          ${show.networks
-            .map((company) => `<span>${company.name}</span>`)
-            .join(", ")}
-          </div>
-        </div>`;
-  document.querySelector("#show-details").appendChild(div);
+          ${
+            show.homepage
+              ? `<a href="${show.homepage}" target="_blank" class="btn">Visit ${
+                  show.name || "Homepage"
+                } Official Homepage</a>`
+              : ""
+          }
+        </div>
+      </div>
+      <div class="details-bottom">
+        <h2>Show Info</h2>
+        <ul>
+          <li><span class="text-secondary">Total Episodes :</span> ${
+            show.number_of_episodes || "N/A"
+          }</li>
+          <li><span class="text-secondary">Total Seasons :</span> ${
+            show.seasons ? show.seasons.length : "N/A"
+          }</li>
+          <li><span class="text-secondary">Current Season Number :</span> ${
+            show.last_episode_to_air
+              ? show.last_episode_to_air.season_number
+              : "N/A"
+          }</li>
+          <li><span class="text-secondary">Current Episode Number :</span> ${
+            show.last_episode_to_air
+              ? show.last_episode_to_air.episode_number
+              : "N/A"
+          }</li>
+          <li><span class="text-secondary">Episode Type :</span> ${
+            show.last_episode_to_air
+              ? show.last_episode_to_air.episode_type
+              : "N/A"
+          }</li>
+          <li><span class="text-secondary">Episode RunTime :</span> ${
+            show.episode_run_time
+              ? show.episode_run_time.join(", ") + " mins"
+              : "N/A"
+          }</li>
+          <li><span class="text-secondary">Status :</span> ${
+            show.status || "N/A"
+          }</li>
+          <li><span class="text-secondary">Popularity :</span> ${
+            show.popularity
+              ? addCommasToNumber(show.popularity).split(".")[0]
+              : "N/A"
+          }</li>
+          <li><span class="text-secondary">Language :</span> ${
+            show.origin_country ? show.origin_country[0] : "N/A"
+          } - ${
+      show.spoken_languages && show.spoken_languages[0]
+        ? show.spoken_languages[0].name
+        : "N/A"
+    }</li>
+          <li><span class="text-secondary">Written By :</span> ${
+            show.created_by && show.created_by[0]
+              ? show.created_by[0].name
+              : "N/A"
+          }</li>
+        </ul>
+        <h4>Publishing Networks: </h4>
+        <div class="list-group">
+          ${
+            show.networks
+              ? show.networks
+                  .map((company) => `<span>${company.name}</span>`)
+                  .join(", ")
+              : "N/A"
+          }
+        </div>
+      </div>`;
+    document.querySelector("#show-details").appendChild(div);
 
-  //overlay for background image for movie details
-  displayBackgroundImage("tv", show.backdrop_path);
+    // Overlay for background image for movie details
+    if (show.backdrop_path) {
+      displayBackgroundImage("tv", show.backdrop_path);
+    }
+  } catch (error) {
+    console.error("Failed to fetch show details:", error);
+  }
 }
+
 //show spinner && hide spinner
 function showSpinner() {
   document.querySelector(".spinner").classList.add("show");
@@ -324,7 +362,7 @@ function initSwiper() {
         slidesPerView: 3,
       },
       1200: {
-        slidesPerView: 4,
+        slidesPerView: 6,
       },
     },
   });
@@ -489,7 +527,7 @@ function init() {
       displayPopularShows();
       break;
     case "tv-details.html":
-      // console.log("Show Details");
+      console.log("Show Details");
       displayShowDetails();
       break;
     case "movie-details.html":
